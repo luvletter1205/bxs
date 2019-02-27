@@ -34,3 +34,5 @@ INPUT "Please input a:"; a
 * 2.26 完成 PRINT 和 INPUT 部分，将原先的变量从long double类型修改为高精度实数类。
 * 2.27 正式成立课题组，确定了数组、函数、表达式、逻辑表达式的格式，确定了运算符的优先级。
 * 2.27 test pull request
+* 2.27 asdfjaskldfj
+	傻逼zjy连github都不会用
