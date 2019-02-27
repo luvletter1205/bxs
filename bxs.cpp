@@ -1,23 +1,24 @@
-#include<iostream>
-#include<cstdio>
-#include<cstring>
-#include<cstdlib>
-#include<map>
-#include<cmath>
-#include<algorithm>
-#include<iomanip>
-#include<fstream>
-#include "windows.h"
-#include "shlobj.h"
-#include<vector>
+#include <iostream>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <map>
+#include <cmath>
+#include <algorithm>
+#include <iomanip>
+#include <fstream>
+#include <windows.h>
+#include <shlobj.h>
+#include <vector>
+#include "TLargeFloat.h"
 
-#define max_num_of_variables 10000
-#define max_num_of_code_lines 10000
+const int max_num_of_variables=10000;
+const int max_num_of_code_lines=10000;
 
 using namespace std;
 
 
-long double X[max_num_of_variables];int v_id=0; 	 //variable and its id
+TLargeFloat X[max_num_of_variables];int v_id=0; 	 //variable and its id
 map <string,int> var;						 //RB-tree conect variable and its id
 char str[max_num_of_code_lines][120];		 //Save the code
 int line;									 //line of code
@@ -34,15 +35,15 @@ int vdef (string variable_name)      		 //define a new variable
 	return v_id;
 }
 
-long double vcal (string variable_name)
+TLargeFloat vcal (string variable_name)
 {
 	if(var.find(variable_name) == var.end() )
-		return -1;
+		throw;
 	else
 		return X[var[variable_name]];
 }
 
-void assignment (string variable_name,long double num)	//assignment a variable
+void assignment (string variable_name,TLargeFloat num)	//assignment a variable
 {
 	
 	if(var.find(variable_name) == var.end() )
@@ -51,6 +52,25 @@ void assignment (string variable_name,long double num)	//assignment a variable
 		X[var[variable_name]]=num;
 }
 
+//获取文件拓展名
+//filename:文件名 
+//返回：
+//含有. 
+//不含大写字母 
+//eg.
+//FileType("example.eG")=".eg"
+string FileType(const string &filename)
+{
+	int p=filename.length()-1;
+	while(filename[p]!='.'&&p>=0)p--;
+	if(p<0)return "";
+	string tmp=filename.substr(p,filename.length()-p+1);
+	for(auto &i:tmp)
+	{
+		if(i>='A'&&i<='Z')i+=32;
+	}
+	return tmp;
+}
 //apart sentences
 //char b[10][101];
 /*void apart(int line_id)
@@ -110,14 +130,18 @@ void INPUT_ (vector<string>tmp)
 		for(int i=1;i<len-2;i++)
 			cout<<tmp[1][i];
 		cout<<endl;
-		double x;
-		cin>>x;
+		string x0;
+		cin>>x0;
+		TLargeFloat x(x0);
+		x.SetDigitsLength(DEFAULT_DigitsArraySize);
 		assignment(tmp[2],x);
 	}
 	else
 	{
-		double x;
-		cin>>x;
+	string x0;
+		cin>>x0;
+		TLargeFloat x(x0);
+		x.SetDigitsLength(DEFAULT_DigitsArraySize);
 		assignment(tmp[1],x);
 	}
 }
@@ -172,18 +196,46 @@ void solve_sentence(const int &line_id)
 void read(string name)
 {
 	//cout<<name<<endl;
-	name+=".bxs";
+	if(FileType(name)!=".bxs")
+		name+=".bxs";
 	string path = getDesktopPath();
 	path += "\\" ;
 	path+=name;
     char *p = const_cast<char*>(path.data());
 	ifstream in(p); 
+	if(!in)
+	{
+		cerr<<"No such file!";
+		exit(2);
+	}
 	while(in.getline(str[++line],100));
 }
 
 int main(int argc,char **argv)
 {
+	
+//	TLargeFloat a,b,c[3];
+//	string a1,b1;
+//	cin>>a1>>b1;
+//	a=TLargeFloat(a1);
+//	b=TLargeFloat(b1);
+//	a.SetDigitsLength(DEFAULT_DigitsArraySize);
+//	b.SetDigitsLength(DEFAULT_DigitsArraySize);
+//	cout<<a<<endl;
+//	cin>>a>>b;
+//	c[0]=a*b;
+//	c[1]=a/b;
+//	c[2]=a+b;
+//	for(int i=0;i<3;i++)
+//	{
+//		cout<<c[i]<<endl;
+//	}
 	cout<<fixed;
+	if(argc!=2)
+	{
+		cerr<<"No such file!";
+		return 2;
+	}
 	read(string(argv[1]));
 	solve_sentence(1);
 	solve_sentence(2);
